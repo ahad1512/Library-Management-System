@@ -20,5 +20,4 @@ public class AuthorResponse {
 
     int age;
 
-    List<BookResponse> bookResponseList;
 }

@@ -54,4 +54,27 @@ public class AuthorService {
                 .build();
 
     }
+
+    public List<String> booksByAuthor(int id) {
+        Optional<Author> authorOptional = authorRepository.findById(id);
+        if(authorOptional.isEmpty()){
+            throw new AuthorNotFoundException("Invalid Author Id !!");
+        }
+        List<String> books = new ArrayList<>();
+        for (Book book : authorOptional.get().getBooks()){
+            books.add(book.getTitle());
+        }
+        return books;
+    }
+
+    public List<String> authorWithNNumberOfBooks(int n) {
+        List<Author> authorList = authorRepository.findAll();
+        List<String> authorNameList = new ArrayList<>();
+        for(Author author : authorList){
+            if(author.getBooks().size()>=n){
+                authorNameList.add(author.getName());
+            }
+        }
+        return authorNameList;
+    }
 }
