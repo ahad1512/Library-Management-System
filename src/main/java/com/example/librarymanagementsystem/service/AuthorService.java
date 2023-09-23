@@ -21,7 +21,7 @@ public class AuthorService {
      @Autowired
     AuthorRepository authorRepository;
     public AuthorResponse addAuthor(String name, String email, int age) {
-        Author author =  Author.builder().name(name).email(email).age(age).build(); //Set all attributes of author
+        Author author =  AuthorTransformer.prepareAuthor(name,email,age); //Set all attributes of author
         Author savedAuthor =authorRepository.save(author);
         return AuthorTransformer.AuthorToAuthorResponse(savedAuthor); // model -->> dto
     }
@@ -41,17 +41,7 @@ public class AuthorService {
         if (authorOptional.isEmpty()) {
             throw new AuthorNotFoundException("Invalid id !!");
         }
-        List<BookResponse> bookResponseList = new ArrayList<>();
-        AuthorResponse authorResponse = AuthorTransformer.AuthorToAuthorResponse(authorOptional.get());
-        for(Book books:authorOptional.get().getBooks()){
-         BookResponse bookResponse= BookTransformer.BookToBookResponse(books);
-         bookResponseList.add(bookResponse);
-        }
-
-        return AuthorWithBooksResponse.builder()
-                .authorResponse(authorResponse)
-                .bookResponseList(bookResponseList)
-                .build();
+        return AuthorTransformer.AuthorToAuthorWithBooksResponse(authorOptional.get());
 
     }
 
