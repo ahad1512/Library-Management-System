@@ -7,5 +7,6 @@ public enum Genre {
     SCIFI,
     MYSTERY,
     HISTORY,
-    ROMANCE
+    ROMANCE,
+    COMEDY
 }
