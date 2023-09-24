@@ -14,6 +14,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
+@Builder
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +25,7 @@ public class Transaction {
    @CreationTimestamp
    Date transactionTime;
 
+   @Enumerated(EnumType.STRING)
    TransactionStatus transactionStatus;
 
    @ManyToOne
