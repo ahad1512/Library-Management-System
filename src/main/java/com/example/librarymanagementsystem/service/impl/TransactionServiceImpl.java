@@ -64,8 +64,10 @@ public class TransactionServiceImpl {
         Student savedStudent = studentRepository.save(student); // save student and transaction
 
         //  send an email
-        String text = "Hi! " + student.getName() + " The below book has been issued to you\n" +
-                book.getTitle() + " \nThis is the transaction number: "+savedTransaction.getTransactionNumber();
+        String text = "Dear, "+ student.getName()+"\n\n"+"This is to notify you that the book: "+ book.getTitle() +" by "+book.getAuthor().getName()
+                      +",has been issued to you.The transaction number is: "+savedTransaction.getTransactionNumber()+"\n\n"
+                      +"Book Details:\n"+"Title: "+book.getTitle()+"\n"+"Author: "+book.getAuthor().getName()+"\n"+"Issue Date: "+savedTransaction.getTransactionTime()+"\n\n"
+                      +"Please take note of the due date and ensure the book is returned by then to avoid any late fees.\n\n"+"Happy reading!";
 
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setFrom("springaccio18@gmail.com");
