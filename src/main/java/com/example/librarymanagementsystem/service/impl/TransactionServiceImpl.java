@@ -3,6 +3,7 @@ package com.example.librarymanagementsystem.service.impl;
 import com.example.librarymanagementsystem.dto.responseDTO.IssueBookResponse;
 import com.example.librarymanagementsystem.exceptions.BookNotAvailableException;
 import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
+import com.example.librarymanagementsystem.exceptions.BookNotIssuedException;
 import com.example.librarymanagementsystem.exceptions.StudentNotFoundException;
 import com.example.librarymanagementsystem.model.Book;
 import com.example.librarymanagementsystem.model.Student;
@@ -79,5 +80,49 @@ public class TransactionServiceImpl {
 
 
         return TransactionTransformer.prepareIssueBookResponse(savedBook,savedStudent,savedTransaction);
+    }
+
+    public String returnBook(int bookId) {
+        Optional<Book> bookOptional = bookRepository.findById(bookId);
+        //check if book exist
+        if(bookOptional.isEmpty()){
+            throw new BookNotFoundException("Invalid book id !!");
+        }
+        Book book = bookOptional.get();
+        if(!book.isIssued()){
+            throw new BookNotIssuedException("This book is not issued !!");
+        }
+        //Get the student that issued the book
+        Student student = book.getTransactions().get(book.getTransactions().size()-1).getLibraryCard().getStudent();
+        //Now Book is valid and issued so now create transaction
+        Transaction transaction = TransactionTransformer.prepareTransaction(book,student);
+
+        //Save Transaction
+        Transaction savedTransaction = transactionRepository.save(transaction);
+
+        book.setIssued(false); // book return
+        book.getTransactions().add(savedTransaction); // Add transaction in book model
+
+        student.getLibraryCard().getTransactions().add(savedTransaction);
+
+        Book savedBook = bookRepository.save(book);
+        Student savedStudent = studentRepository.save(student);
+
+        //Send an Email
+        String text = "Hey "+savedStudent.getName()+","+"\n"+
+                "Thank you for returning the book to the library promptly." +
+                " Your cooperation is appreciated." +
+                " The transaction number for your return is "+savedTransaction.getTransactionNumber();
+
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setFrom("springaccio18@gmail.com");
+        simpleMailMessage.setTo(savedStudent.getEmail());
+        simpleMailMessage.setSubject("Book returned");
+        simpleMailMessage.setText(text);
+
+        javaMailSender.send(simpleMailMessage);
+
+        return "Book with Id- "+savedBook.getId()+" issued to "+savedStudent.getName()+
+                " has been successfully returned with transaction number- "+savedTransaction.getTransactionNumber();
     }
 }

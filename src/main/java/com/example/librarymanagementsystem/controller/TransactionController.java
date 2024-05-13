@@ -2,6 +2,8 @@ package com.example.librarymanagementsystem.controller;
 
 import com.example.librarymanagementsystem.dto.responseDTO.IssueBookResponse;
 import com.example.librarymanagementsystem.exceptions.BookNotAvailableException;
+import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
+import com.example.librarymanagementsystem.exceptions.BookNotIssuedException;
 import com.example.librarymanagementsystem.service.impl.TransactionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,16 @@ public class TransactionController {
            return new ResponseEntity(issueBookResponse, HttpStatus.ACCEPTED);
        }
        catch (Exception e){
+           return new ResponseEntity(e.getMessage(),HttpStatus.NOT_FOUND);
+       }
+    }
+    @PostMapping("/return-book/book-id/{book-id}")
+    public ResponseEntity returnBook(@PathVariable("book-id") int bookId){
+       try{
+           String returnBookResponse = transactionService.returnBook(bookId);
+           return new ResponseEntity(returnBookResponse,HttpStatus.OK);
+       }
+       catch(BookNotFoundException |BookNotIssuedException e){
            return new ResponseEntity(e.getMessage(),HttpStatus.NOT_FOUND);
        }
     }
